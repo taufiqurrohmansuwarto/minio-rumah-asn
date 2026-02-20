@@ -1,5 +1,4 @@
-# File: docker-compose.yml
-version: "3.8"
+version: '3.8'
 services:
   minio:
     image: quay.io/minio/minio:latest
@@ -10,7 +9,10 @@ services:
     environment:
       MINIO_ROOT_USER: "${MINIO_ROOT_USER}"
       MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
+      MINIO_SERVER_URL: "${MINIO_SERVER_URL}"
+      MINIO_BROWSER_REDIRECT_URL: "${MINIO_BROWSER_REDIRECT_URL}"
     volumes:
       - /srv/minio:/data
-    command: server /data --console-address ":9001"
+      - /etc/minio/certs:/etc/minio/certs
+    command: server /data --console-address ":9001" --certs-dir "/etc/minio/certs"
     restart: always
