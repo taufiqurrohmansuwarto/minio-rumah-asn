@@ -4,15 +4,26 @@ services:
     image: quay.io/minio/minio:latest
     container_name: minio_siasn
     ports:
-      - "9000:9000"
-      - "127.0.0.1:9001:9001"
+      - "9000:9000"             # Jalur API (terbuka untuk koneksi aplikasi)
+      - "127.0.0.1:9001:9001"   # Jalur Console Web (dikunci khusus untuk Nginx)
     environment:
       MINIO_ROOT_USER: "${MINIO_ROOT_USER}"
       MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
       MINIO_SERVER_URL: "${MINIO_SERVER_URL}"
       MINIO_BROWSER_REDIRECT_URL: "${MINIO_BROWSER_REDIRECT_URL}"
+      
+      # --- TUNING PERFORMA (Golang) ---
+      GOMEMLIMIT: "28GiB"       # Paksa MinIO membersihkan cache di batas 28GB
+      
     volumes:
       - /srv/minio:/data
       - /etc/minio/certs:/etc/minio/certs
     command: server /data --console-address ":9001" --certs-dir "/etc/minio/certs"
     restart: always
+    
+    # --- LIMITASI HARDWARE ---
+    deploy:
+      resources:
+        limits:
+          cpus: '16.0'          # Maksimal memakan 16 Core CPU
+          memory: 32G           # Maksimal memakan 32GB RAM
